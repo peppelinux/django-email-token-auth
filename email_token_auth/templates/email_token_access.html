@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <h2 class="ui header">{{ title }}</h2>
+    <div class="ui divider"></div>
+
+    <div class="ui grid">
+
+        <div class="ten wide column">
+        </div>
+
+        <div class="six wide column">
+
+            <h3 class="ui header">
+                Login
+            </h3>
+
+            {% if error_msg %}
+            <div class="ui error message">
+              {{ error_msg|safe }}
+            </div>
+            {% endif %}
+
+            <form class="ui large form" method="post">
+              {% csrf_token %}
+<!--
+              <div class="ui segment" style="background-color: #f8f8f9;">
+                <div class="field">
+                  <div class="ui left icon input">
+                    <i class="user icon"></i>
+                    <input type="text" name="username" placeholder="username@guest.unical.it" required autofocus>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="ui left icon input">
+                    <i class="lock icon"></i>
+                    <input type="password" name="password" placeholder="Password" required>
+                  </div>
+                </div>
+                <button class="ui fluid large red submit button">Login</button>
+              </div>
+-->
+                {{ form }}
+
+                <button class="ui fluid large red submit button">{% trans "Submit" %}</button>
+            </form>
+        </div>
+
+    </div>
+{% endblock content %}

@@ -57,7 +57,7 @@ ROOT_URLCONF = 'example.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -107,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Rome'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -126,3 +126,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'no-reply@{}'.format(HOSTNAME)
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+
+if 'email_token_auth' in INSTALLED_APPS:
+    from email_token_auth.settings import *
+    LOGIN_URL = '/token/access/request'
+    LOGIN_REDIRECT_URL = '/' # it's only an example!

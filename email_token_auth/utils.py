@@ -3,6 +3,7 @@ import datetime
 from django.conf import settings
 from django.utils import translation, timezone
 
+
 def get_default_translations(message, sep='\n'):
     messages = []
     for lang in settings.MSG_DEFAULT_LANGUAGES:

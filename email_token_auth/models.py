@@ -30,7 +30,8 @@ class Identity(models.Model):
     city = models.CharField(max_length=128, blank=True, null=True,
                             help_text=_('residenza'))
     tin = models.CharField(max_length=24, blank=True, null=True,
-                           help_text=_('Taxpayer Identification Number'))
+                           help_text=_(('Taxpayer Identification Number'
+                                        ' (codice fiscale)')))
     date_of_birth = models.DateField(blank=True, null=True)
     place_of_birth = models.CharField(max_length=128,
                                       blank=True, null=True, help_text='')
@@ -39,9 +40,20 @@ class Identity(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
+    expiration_date = models.DateTimeField(blank=True, null=True)
+
     class Meta:
         ordering = ['created',]
         verbose_name_plural = _("Identità digitali")
+
+    def is_valid(self):
+        if not self.expiration_date: return True
+        if (timezone.localtime() > self.expiration_date):
+            return False
+        return True
+
+    def __str__(self):
+        return '{} {} - {}'.format(self.name, self.surname, self.email)
 
 
 class IdentityToken(models.Model):
@@ -60,11 +72,25 @@ class IdentityToken(models.Model):
                                     help_text=_('disable it if needed'))
     create_date = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['create_date',]
+        verbose_name_plural = _("Token di accesso")
+
+
+    def __str__(self):
+        return '{} {} - {}'.format(self.identity, self.token, self.used if self.used else '')
+
     def is_valid(self):
         if (timezone.localtime() > self.valid_until) or \
             not self.is_active or self.used:
             return False
         return True
+
+    def mark_as_sent(self, email):
+        self.sent_to = email
+        self.sent = True
+        self.sent_date = timezone.localtime()
+        self.save()
 
     def mark_as_used(self):
         self.is_active = False
@@ -72,47 +98,5 @@ class IdentityToken(models.Model):
         self.save()
 
     def get_activation_url(self):
-        return reverse('email_token_auth:access',
-                       kwargs={'token_value': self.token })
-
-    def send_email(self, ldap_user=None, lang=None):
-        """
-        An email require a token
-        """
-        if not self.is_active: return False
-        d = {'hostname': settings.HOSTNAME,
-             'valid_until': self.valid_until}
-
-        smd = { 'token_path': self.get_activation_url(),
-                'user': self.identity}
-        # IDENTITY_PROVISIONING_MSG - two language for everyone!
-        mail_subject = get_default_translations(_('{} - New access request').format(settings.HOSTNAME),
-                                                sep = ' - ')
-
-        mail_body_partlist = [settings.IDENTITY_MSG_HEADER,
-                              settings.IDENTITY_PROVISIONING_MSG,
-                              settings.IDENTITY_MSG_FOOTER]
-
-        body_translated = []
-        for lang in settings.MSG_DEFAULT_LANGUAGES:
-            for i in mail_body_partlist:
-                body_translated.append(translate_to(i, lang))
-
-        msg_body = ''.join(body_translated)
-
-        d.update(smd)
-        self.sent = send_mail(mail_subject,
-                              msg_body.format(**d),
-                              settings.DEFAULT_FROM_EMAIL,
-                              [self.identity.email,],
-                              fail_silently=True,
-                              auth_user=None,
-                              auth_password=None,
-                              connection=None,
-                              html_message=None)
-        if self.sent:
-            self.sent_to = self.identity.email
-            self.sent = True
-            self.sent_date = timezone.localtime()
-            self.save()
-        return self.sent
+        return reverse('email_token_auth:email_token_access',
+                       kwargs={'token': self.token })
