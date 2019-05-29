@@ -1,26 +1,26 @@
 # django-email-token-auth
 Django app to authenticate a user using a token sent by email.
 
-Django-email-token-auth is not a pure Authentication Backend but it can
-login users defined in a separate schema, if their profiles are valid (not expired).
+Django-email-token-auth is not a pure Authentication Backend, it
+login users defined in a separate schema if their profiles are valid (not expired).
 
-Once a user get a token through it's mailbox and use this to gain access, a
-user without a password will be create in django's user model.
+When a user get a token through email and use it to gain access, an
+user without a password will be created in the user model.
 
 Workflow described as follow:
 
- - A guy requests an access submitting his email;
+ - A guy requests an access submitting his email in a webform;
  - If this email is found in the Identity Model a token will be created;
- - The token is sent by server to the guy to his email box;
- - the user click on the token url found in the email and get redirected to a web form;
- - He submit again his email, to confirmation, and if the token is not expired...
+ - The token is sent to the guy's email;
+ - The user click on the token url found in the email and get redirected to a web form;
+ - The user submit again his email to confirm the access validity, and if the token is not expired and the email matchess with the token...
 
-The user is now logged in.
+The user gets logged in as a normal Django user.
 
 settings.py
 -----------
 Parameters to be configured.
-See `example/example/settings.py` for an example configuration.
+See `example/example/settings.py` for a complete example configuration.
 
 ````
 TOKEN_EMAIL_MSG = _("""Dear {user},
