@@ -1,5 +1,5 @@
 # django-email-token-auth
-Django app to authenticate a user using a token sent by email.
+Django app to authenticate users using a token sent by email.
 
 Django-email-token-auth is not a pure Authentication Backend, it
 login users defined in a separate schema if their profiles are valid (not expired).
