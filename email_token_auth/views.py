@@ -22,7 +22,13 @@ def email_token_request(request):
     form = _handle_request(request)
     if form.is_valid():
         email = form.cleaned_data['mail']
-        # check if the identity is valid
+        # check if user exists and if it's enabled
+        user = get_user_model().objects.filter(email=email).last()
+        # if it was disabled the request fail
+        if not user.is_active:
+            return render(request, 'email_token_sent.html',
+                          context={'form': form})
+        # if user do not exists check in the Identity Model
         identity = Identity.objects.filter(email=email).last()
         if not identity or not identity.is_valid():
             return render(request, 'email_token_sent.html',
