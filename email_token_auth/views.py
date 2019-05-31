@@ -87,7 +87,6 @@ def email_token_access(request, token):
                          last_name=idtoken.identity.surname,
                          email=idtoken.identity.email,
                          is_active=True)
-            # return HttpResponse('not valid')
             User = get_user_model()
             user = User.objects.filter(**udict).first()
             if not user:
