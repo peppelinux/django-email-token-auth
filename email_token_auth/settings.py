@@ -13,3 +13,4 @@ Best regards""")
 
 TOKEN_EXPIRATION_MINUTES = 5
 MSG_DEFAULT_LANGUAGES = ['it', 'en']
+LOGIN_REDIRECT_URL = '/'

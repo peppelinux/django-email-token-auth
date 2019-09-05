@@ -25,7 +25,7 @@ def email_token_request(request):
         # check if user exists and if it's enabled
         user = get_user_model().objects.filter(email=email).last()
         # if it was disabled the request fail
-        if not user.is_active:
+        if user and not user.is_active:
             return render(request, 'email_token_sent.html',
                           context={'form': form})
         # if user do not exists check in the Identity Model
@@ -73,7 +73,7 @@ def email_token_request(request):
                   context={'form': form})
 
 
-@redirect_if_authenticated('home')
+@redirect_if_authenticated(settings.LOGIN_REDIRECT_URL)
 def email_token_access(request, token):
     form = _handle_request(request)
     if form.is_valid():
@@ -91,6 +91,8 @@ def email_token_access(request, token):
             user = User.objects.filter(**udict).first()
             if not user:
                 User.objects.create(**udict)
+
+            idtoken.mark_as_used()
 
             login(request, user)
             return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
